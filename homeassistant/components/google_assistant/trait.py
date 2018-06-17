@@ -189,6 +189,7 @@ class OnOffTrait(_Trait):
             light.DOMAIN,
             cover.DOMAIN,
             media_player.DOMAIN,
+            climate.DOMAIN,
         )
 
     def sync_attributes(self):
@@ -464,7 +465,7 @@ class TemperatureSettingTrait(_Trait):
         return response
 
     async def execute(self, hass, command, params):
-        """Execute a temperature point or mode command."""
+        """Execute a temperature point, mode or power command."""
         # All sent in temperatures are always in Celsius
         unit = self.state.attributes[ATTR_UNIT_OF_MEASUREMENT]
         min_temp = self.state.attributes[climate.ATTR_MIN_TEMP]
@@ -519,4 +520,11 @@ class TemperatureSettingTrait(_Trait):
                     ATTR_ENTITY_ID: self.state.entity_id,
                     climate.ATTR_OPERATION_MODE:
                         self.google_to_hass[params['thermostatMode']],
+                }, blocking=True)
+        elif command == COMMAND_ONOFF:
+            service = 'heatcool' if params['on'] else 'off'
+            await hass.services.async_call(
+                climate.DOMAIN, climate.SERVICE_SET_OPERATION_MODE, {
+                    ATTR_ENTITY_ID: self.state.entity_id,
+                    climate.ATTR_OPERATION_MODE: service,
                 }, blocking=True)

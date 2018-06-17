@@ -529,6 +529,34 @@ class MqttClimate(MqttAvailability, ClimateDevice):
             self._current_operation = operation_mode
             self.async_schedule_update_ha_state()
 
+    @asyncio.coroutine
+    def async_turn_off(self):
+        """Turn off device."""
+        if (self._current_operation != STATE_OFF):
+            if self._topic[CONF_POWER_COMMAND_TOPIC] is not None:
+                _LOGGER.info("TURNING OFF")
+                mqtt.async_publish(
+                    self.hass, self._topic[CONF_POWER_COMMAND_TOPIC],
+                    self._payload_off, self._qos, self._retain)
+
+            if self._topic[CONF_MODE_STATE_TOPIC] is None:
+                self._current_operation = STATE_OFF
+                self.async_schedule_update_ha_state()
+
+    @asyncio.coroutine
+    def async_turn_on(self):
+        """Turn on device."""
+        if (self._current_operation == STATE_OFF):
+            if self._topic[CONF_POWER_COMMAND_TOPIC] is not None:
+                _LOGGER.info("TURNING ON")
+                mqtt.async_publish(
+                    self.hass, self._topic[CONF_POWER_COMMAND_TOPIC],
+                    self._payload_on, self._qos, self._retain)
+
+            if self._topic[CONF_MODE_STATE_TOPIC] is None:
+                self._current_operation = STATE_ON
+                self.async_schedule_update_ha_state()
+
     @property
     def current_swing_mode(self):
         """Return the swing setting."""

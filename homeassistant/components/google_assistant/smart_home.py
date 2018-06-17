@@ -31,7 +31,7 @@ from homeassistant.components import (
 
 from . import trait
 from .const import (
-    TYPE_LIGHT, TYPE_SCENE, TYPE_SWITCH, TYPE_THERMOSTAT,
+    TYPE_LIGHT, TYPE_SCENE, TYPE_SWITCH, TYPE_AIR_CONDITIONER,
     CONF_ALIASES, CONF_ROOM_HINT,
     ERR_NOT_SUPPORTED, ERR_PROTOCOL_ERROR, ERR_DEVICE_OFFLINE,
     ERR_UNKNOWN_ERROR
@@ -42,7 +42,7 @@ HANDLERS = Registry()
 _LOGGER = logging.getLogger(__name__)
 
 DOMAIN_TO_GOOGLE_TYPES = {
-    climate.DOMAIN: TYPE_THERMOSTAT,
+    climate.DOMAIN: TYPE_AIR_CONDITIONER,
     cover.DOMAIN: TYPE_SWITCH,
     fan.DOMAIN: TYPE_SWITCH,
     group.DOMAIN: TYPE_SWITCH,
@@ -246,6 +246,8 @@ async def async_devices_sync(hass, config, payload):
         if serialized is None:
             _LOGGER.debug("No mapping for %s domain", entity.state)
             continue
+
+        _LOGGER.info("PAYLOAD", serialized)
 
         devices.append(serialized)
 
